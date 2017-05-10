@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+    <meta charset="UTF-8">
+<script src="http://apps.bdimg.com/libs/angular.js/1.4.6/angular.min.js"></script>
+<body>
+<div ng-controller="ServiceCtrl">
+  <label for="">用户名：</label>
+  <input type="text" ng-model="username" placeholder="请输入用户名"/>
+  <pre ng-show="username">{{users}}</pre>
+</div>
+
+
+<script>
+var app = angular.module('myApp', []);
+// factory()方法是用来注册服务的最常规方式
+//在调用service时会用new关键字，而调用factory时只是调用普通的function，所以factory可以返回任何东西，
+//而service可以不返回(可查阅new关键字的作用)
+//
+//用 Factory 就是创建一个对象，为它添加属性，然后把这个对象返回出来。你把 service 传进 controller 之后，在 controller 里这个对象里的属性就可以通过 factory 使用了
+app.factory("userListService",['$http',function($http){
+  var doRequest=function(username,path) {
+    return $http({
+      method:"get",
+      url:"user.json"
+    });
+  }
+  return {
+    userList:function(username){
+      return doRequest(username,"userList")
+    }
+  }
+}])
+
+// Service 是用"new"关键字实例化的。因此，你应该给"this"添加属性，然后 service 返回"this"。你把 service 传进 controller 之后，在controller里 "this" 上的属性就可以通过 service 来使用了。
+
+// Providers 是唯一一种你可以传进 .config() 函数的 service。当你想要在 service 对象启用之前，先进行模块范围的配置，那就应该用 provider。
+
+
+// 自定义的service不带$,function的最后一个，可以在控制器、指令、过滤器或另外一个服务中通过依赖声明的方式来使用服务
+//  provider()----提供者是一个具有$get()方法的对象，$injector通过调用$get方法创建服务实例
+app.controller("ServiceCtrl",['$scope','$timeout','userListService',function($scope,$timeout,userListService){
+  var timeout;
+  $scope.$watch('username',function(newUserName){
+    if(newUserName){
+      // input输入延迟，等待350s，防止抖动
+      if(timeout){
+        $timeout.cancel(timeout)
+      }
+      timeout=$timeout(function(){
+        userListService.userList(newUserName)
+        .success(function(data,status){
+          $scope.users=data.join("\n");
+        })
+      },350)
+    }
+  })
+}])
+</script>
+
+</body>
+</html>

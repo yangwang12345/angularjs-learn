@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="./lib/bootstrap.css">
+    <link rel="stylesheet" href="./lib/jquery-ui.min.css">
+	<script type="text/javascript" src="./lib/angular.min.js"></script>
+    <script type="text/javascript" src="./lib/jquery.min.js"></script>
+    <script type="text/javascript" src="./lib/jquery-ui.min.js"></script>
+	<style>
+	ul,li{
+		list-style: none;
+		display: inline-block;
+	}
+	</style>
+</head>
+<body>
+<button>按钮</button>
+<button type="submit" size="large">提交</button>
+
+<div ng-repeat="i in [0,1,2]">
+    <simple>
+        <div>Inner content</div>
+    </simple>
+</div>
+<div ng-controller="TaskCtrl">
+    <pagination num-pages="tasks.pageCount" current-page="tasks.currentPage" on-select-page="selectPage(page)">
+    </pagination>
+</div>
+
+<form name="testForm">
+    <input name="testInput" ng-model="model.value" validate-equals="model.compareTo">
+</form>
+
+<form name="myForm">
+ <div contenteditable
+  name="myWidget" ng-model="userContent"
+  strip-br="true"
+  required>Change me!</div>
+  <span ng-show="myForm.myWidget.$error.required">Required!</span>
+ <hr>
+ <textarea ng-model="userContent"></textarea>
+</form>
+
+<!-- <input class="form-control" readonly="readonly" ng-model="search.Date"   
+placeholder="{{'CLICK_FOR_TIME'|translate}}"> 
+ <span style="color:#ff0000;">mydatapicker</span>  --> 
+<script>
+// directive   返回指令定义的工厂函数,工厂函数可以注入服务,指令定义返回的是对象
+// name,restrict(标签形式),priority(优先级),terminal,
+// link(定义将指令和作用域连接起来的链接函数),
+// template(生成指令标签的字符串)，templateUrl(指令模板的url地址),
+// replace(是否使用模板内容替换指令的现有元素),
+// transclude(是否为指令模板和编译函数提供指令元素中的内容),
+// scope(为指令创建子作用域true，false复用组件具体使用位置的作用域，还是独立作用域scope:{},不存在原型继承可以用$parent访问),元素属性与scope的关系，
+// @插入  {{字符串}}，
+// attrs.$observe('attribute1',function(value){
+// isolatedscope.isolate1=value
+// })
+// attrs.$$observers['attribute11'].$$scope=parentScope
+// =数据绑定，
+// var parentGet=$parse(attrs['attribute2'])
+// var parentSet=parentGet.assign;
+// parentScope.$watch(parentGet,function(value){
+//  isolatedScope.isolated2=value
+// })
+// isolatedScope.$watch('isolated2',function(value){
+// parentSet(parentScope,value)
+// })
+// &函数表达式
+// var parentGet=$parse(attrs['attribute3']);
+// scope.isolated3=function(locals){
+//   return parentGet(parentScope,locals)
+// }
+// ,controller(指令控制器，指令出现被实例化),可以是字符串（控制器名称），也可以是function构造函数
+// 可以注入依赖，$timeout,$rootScope,$element,$attrs,$transclude
+// require(设置要注入当前指令连接函数的其他指令的控制器),
+// 字符串或数组元素的值是会在当前指令的作用域中使用的指令名称,?
+// ? 可选，会将null作为传给link函数的第四个参数。
+// ^ 祖先或自己查找require参数所指定的控制器。
+// ?^ 可选或者在自己和祖先元素中查找控制器。
+// compile(定义编译函数，编译函数会操作原始DOM，而且会在没有提供link设置的情况下创建链接函数),和link互斥，少用
+var app = angular.module("myApp", []);
+app.directive('button', function() {
+    return {
+        restrict: 'E',
+        compile: function(element, attributes) {
+            element.addClass('btn');
+            if (attributes.type === "submit") {
+                element.addClass('btn-primary')
+            }
+            if (attributes.size) {
+                element.addClass('btn-' + attributes.size)
+            }
+            return {
+                pre: function(scope, iElem, iAttrs) {
+                    console.log("pre")
+                },
+                post: function(scope, iElem, iAttrs) {
+                    console.log("post")
+                }
+            }
+        }
+    }
+})
+
+app.directive("simple", function() {
+    return {
+        restrict: "EA",
+        transclude: true,
+        template: "<div>{{label}}<div ng-transclude></div></div>",
+
+        compile: function(element, attributes) {
+
+            return {
+                pre: function(scope, iElem, iAttrs) {
+                    console.log(name + ': pre link => ' + iElem.html());
+                },
+                post: function(scope, iElem, iAttrs) {
+                    console.log(name + ': post link => ' + iElem.html());
+                }
+            }
+        },
+        controller: function($scope) {
+
+        }
+    };
+});
+
+app.controller("TaskCtrl", function($scope) {
+    $scope.tasks = {
+        pageCount: 5,
+        currentPage: 2
+    }
+})
+app.directive("pagination", function() {
+    return {
+        restrict: "E",
+        template: '<div class="pagination"><ul class="pagination"><li ng-class="{disabled:noPrevious()}"><a ng-click="selectPrevious()">Previous</a></li><li ng-repeat="page in pages" ng-class="{active:isActive(page)}"><a ng-click="selectPage(page)">{{page}}</a></li><li ng-class="{disabled:noNext()}"><a ng-click="selectNext()">Next</a></li></ul></div>',
+        scope: {
+            numPages: '=',
+            currentPage: '=',
+            onSelectPage: '&'
+        },
+        replace: true,
+        // 使用链接函数=》使用控制器
+        controller:['$scope','$element','$attrs',function($scope,$element,$attrs){
+            $scope.$watch('numPages', function(value) {
+                $scope.pages = [];
+                for (var i = 1; i <= value; i++) {
+                    $scope.pages.push(i)
+                }
+                if ($scope.currentPage > value) {
+                    $scope.selectPage(value)
+                }
+            });
+            $scope.noPrevious = function() {
+                return $scope.currentPage === 1;
+            }
+            $scope.noNext = function() {
+                return $scope.currentPage === $scope.numPages;
+            }
+            $scope.isActive = function(page) {
+                return $scope.currentPage === page
+            };
+
+            // $scope.selectPage=function(page){
+            //     if(!$scope.isActive(page)){
+            //         $scope.currentPage=page;
+            //     }
+            // };
+            $scope.selectPage = function(page) {
+                if (!$scope.isActive(page)) {
+                    $scope.currentPage = page;
+                    $scope.onSelectPage({
+                        page: page
+                    })
+                }
+            };
+            $scope.selectPrevious = function() {
+                if (!$scope.noPrevious()) {
+                    $scope.selectPage($scope.currentPage - 1)
+                }
+            }
+
+            $scope.selectNext = function() {
+                if (!$scope.noNext()) {
+                    $scope.selectPage($scope.currentPage + 1)
+                }
+            }
+        }]
+        // link: function(scope) {
+        //     console.log(scope);
+        //     // 当你需要监听一个包含"{{}}"的DOM属性时, 使用$observe,反之, 就用$watch.
+        //     scope.$watch('numPages', function(value) {
+        //         scope.pages = [];
+        //         for (var i = 1; i <= value; i++) {
+        //             scope.pages.push(i)
+        //         }
+        //         if (scope.currentPage > value) {
+        //             scope.selectPage(value)
+        //         }
+        //     });
+        //     scope.noPrevious = function() {
+        //         return scope.currentPage === 1;
+        //     }
+        //     scope.noNext = function() {
+        //         return scope.currentPage === scope.numPages;
+        //     }
+        //     scope.isActive = function(page) {
+        //         return scope.currentPage === page
+        //     };
+
+        //     // scope.selectPage=function(page){
+        //     //     if(!scope.isActive(page)){
+        //     //         scope.currentPage=page;
+        //     //     }
+        //     // };
+        //     scope.selectPage = function(page) {
+        //         if (!scope.isActive(page)) {
+        //             scope.currentPage = page;
+        //             scope.onSelectPage({
+        //                 page: page
+        //             })
+        //         }
+        //     };
+        //     scope.selectPrevious = function() {
+        //         if (!scope.noPrevious()) {
+        //             scope.selectPage(scope.currentPage - 1)
+        //         }
+        //     }
+
+        //     scope.selectNext = function() {
+        //         if (!scope.noNext()) {
+        //             scope.selectPage(scope.currentPage + 1)
+        //         }
+        //     }
+        // }
+    };
+});
+
+// require:'ngModel',
+// link:function(scope,element,attrs,ngModelController){}
+// ngModelController的方法属性
+// $parsers  接受一个输入值返回一个输出值，调用$setValidity
+// $formatters 接受一个输入值返回一个输出值，调用$setValidity
+// $setValidity(validationErrorKey,isValid)
+// $valid
+// $error
+app.controller('TestCtrl',function($scope){
+    $scope.model={
+        value:100,
+        compareTo:"100"
+    }
+})
+app.directive('validateEquals',function(){
+    return {
+        require:'ngModel',
+        link:function(scope,elm,attrs,ngModelCtrl){
+            function validateEqual(myValue){
+                var valid=(myValue === scope.$eval(attrs.validateEquals));
+                ngModelCtrl.$setValidity('equal',valid);
+                return valid?myValue:undefined
+            }
+
+            ngModelCtrl.$parsers.push(validateEqual)
+            ngModelCtrl.$formatters.push(validateEqual)
+
+            scope.$watch(attrs.validateEquals,function(){
+                ngModelCtrl.$setViewValue(ngModelCtrl,ngModelCtrl.$viewValue)
+            })
+        }
+    }
+})
+
+app.directive('contenteditable', function() {
+    return {
+        restrict: 'A', // 作为元素属性 
+        require: '?ngModel', // 获取ngModelController 
+        link: function(scope, element, attrs, ngModel) {
+            console.log(ngModel);
+            if (!ngModel) return // 如果没有ng-model则什么都不做
+                // 指定UI的更新方式
+            ngModel.$render = function() {
+                element.html(ngModel.$viewValue || '');
+            };
+
+            // 监听change事件来开启绑定
+            element.on('blur keyup change', function() {
+                scope.$apply(read);
+            });
+            read(); // 初始化
+
+            // 将数据写入model
+            function read() {
+                var html = element.html();
+                // 当我们清空div时浏览器会留下一个<br>标签
+                // 如果制定了strip-br属性，那么<br>标签会被清空
+                if (attrs.stripBr && html == '<br>') {
+                    html = '';
+                }
+                ngModel.$setViewValue(html);
+            }
+        }
+    };
+})
+
+// app.directive('mydatapicker',function(){  
+//     return {  
+//         restrict:'EA',  
+//         require: 'ngModel',  
+//         link: function(scope,ele,attrs,ctrl){         
+//                 $(ele).datepicker({  
+//                     dateFormat:'yy-mm-dd',  
+//                     onSelect:function(dp){  
+//                         scope.$apply(function(){  
+//                             ctrl.$setViewValue(dp);  
+//                         });  
+//                     }  
+//             });  
+//         }  
+//     }  
+      
+// }); 
+// app.directive('datePicker', function() {
+//     return {
+//         restrict: 'A', // 作为元素属性 
+//         require: 'ngModel', // 获取ngModelController 
+//         link: function(scope, element, attrs, ngModelCtrl) {
+//             ngModelCtrl.$formatters.push(function(date){
+//                 if(angular.isDefined(date) && date != null && !angular.isDate(date)){
+//                     throw new Error('ng-Model value must be a Date object')
+//                 }
+//                 return date
+//             })
+
+//             var updateModel=function(){
+//                 scope.$apply(function(){
+//                     var date=element.datePicker("getDate");
+//                     element.datePicker("setDate",element.val())
+//                     ngModelCtrl.$setViewValue(date)
+//                 })
+//             }
+//             var onSelectHandler=function(userHandler){
+//                 if(userHandler){
+//                     return function(value,picker){
+//                         updateModel();
+//                         return userHandler(value,picker)
+//                     }
+//                 } else{
+//                     return updateModel
+//                 }
+//             }
+//             var setUpDatePicker=function(){
+//                 var options=scope.$eval(attrs.datePicker) || {};
+//                 options.onSelect=onSelectHandler(options.onSelect);
+//                 element.bind('change',updateModel)
+//                 element.datePicker('destroy')
+//                 element.datePicker(options);
+//                 ngModelCtrl.$render();
+//             }
+
+//             ngModelCtrl.$render=function(){
+//                  element.datePicker('setDate',ngModelCtrl.$viewvalue)
+//             }
+
+//             scope.$watch(attrs.datePicker,setUpDatePicker,true)
+//         }
+//     };
+// })
+</script>
+</body>
+</html>

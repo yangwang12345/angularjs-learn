@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>angular</title>
+    <!-- <script type="text/javascript" src="./lib/jquery.min.js"></script> -->
+    <script type="text/javascript" src="./lib/angular.min.js"></script>
+    <script>
+        angular.module('myApp', [])
+            .controller('MyController', function ($scope, $compile, $timeout) {
+                var vm = this;
+                vm.html = '<h1>{{title}}</h1>\
+                            <ul>\
+                                <li ng-repeat="item in items">{{item}}</li>\
+                            </ul>'
+
+            })
+            .directive('compile', function($compile) {
+                return {
+                    scope: {
+                        compile: '='
+                    },
+                    link: function(scope, elem, attrs) {
+                        scope.title = 'list';
+                        scope.items = ['list1', 'list2', 'list3'];
+                        elem.html($compile(scope.compile)(scope))
+                    }
+                }
+            })
+    </script>
+</head>
+<body ng-controller="MyController as appCtrl">
+    <div compile="appCtrl.html"></div>
+</body>
+</html>

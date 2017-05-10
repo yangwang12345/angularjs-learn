@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="./lib/bootstrap.css">
+	<script type="text/javascript" src="./lib/angular.min.js"></script>
+	<style>
+	ul,li{
+		list-style: none;
+		display: inline-block;
+	}
+	.icon-chevron-up{
+		background: url(./img/sort_desc.png) no-repeat center right;
+	}
+	.icon-chevron-down{
+		background: url(./img/sort_desc.png) no-repeat center right;
+		-moz-transform:rotate(180deg); 
+		-webkit-transform:rotate(180deg);
+		transform:rotate(180deg);
+		filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+	}
+	th.icon-chevron-up,th.icon-chevron-down{
+		overflow: hidden;
+	}
+	th i {
+		float: right;
+		width: 19px;
+		height: 19px;
+	}
+	.ng-valid.ng-dirty{
+		border: solid 1px green; 
+	}
+	.ng-invalid.ng-dirty{
+		border: solid 1px red; 
+	}
+	</style>
+</head>
+<body ng-app="myApp">
+<div class="container" ng-controller="myCtrl">
+	<div ng-bind="name"></div>
+	<input type="text" ng-model="name" ng-change="change()">
+</div>
+
+email:<input type="text" ng-model="user.email"><br/>
+username:<input type="text" ng-model="user.username"><br/>
+<!-- 至少一个数字和一个字母，若无效，则无此字段 -->
+password:<input type="text" ng-minlength="3" ng-maxlength="10" ng-pattern="/^.*(?=.*\d)(?=.*[a-zA-Z]).*$/" ng-model="user.password"><br/>
+repeatPsw:<input type="text" ng-model="user.repeatPsw"><br/>
+是否admin:<input type="checkbox" ng-model="user.admin"><br/>
+<!-- ng-true-value里面的值是字符串，所以加'' -->
+role:<input type="checkbox" ng-model="user.role" ng-true-value="'admin'"  ng-false-value="'user'"><br/>
+<label><input type="radio" ng-model="user.sex" value="male">male</label>
+<label><input type="radio" ng-model="user.sex" value="female">Female</label><br/>
+<select ng-model="user.sex2">
+	<option value="">-- 请选择 --</option>
+	<option value="m" ng-selected="user.sex2=='m'">male</option>
+	<option value="f" ng-selected="user.sex2=='f'">female</option>
+</select><br/>
+<br/>
+<pre ng-bind="user | json"></pre>
+
+<div ng-controller="LearnCtrl">
+    <input type="checkbox"
+           ng-model="check"
+           ng-true-value="'YES'"
+           ng-false-value="'N'+'O'"
+           ng-change="change()"/>
+
+    <p>{{check}}</p>   
+     <!--  ng-model的值会指向select元素的当前选中项的value值.as后面是label值,前面是value值-->
+	<select ng-model="person" ng-options="user.email as user.username group by user.sex for user in users">	
+	</select><br/>
+
+	<select ng-model="country1" ng-options="code as name for (code,name) in countriesByCode">	
+	</select><br/>
+
+	<select ng-model="country2" ng-options="code as name for (name,code) in countriesByName">	
+	</select><br/>
+
+	<select ng-model="engineer.currentActivity" class="form-control" ng-options="act for act in activities"></select>
+</div>
+</div>
+<div ng-controller="selected">
+
+<!-- group by value.group
+<optgroup label="value.group">
+...
+</optgroup> 
+-->
+<!-- value.id as value.label  =>value as label group by grouping
+value.id将会和模型进行绑定,它的值会被存进ng-model属性里去(也就是option的value值,被选中后就是select标签的value). 如果你没有写value.id as,而是只写了value.label,那么,整个对象会被作为ng-model的值,value.label作为option的text值.
+ -->
+	<select ng-change="selectAction()" ng-model="myOption" ng-options="value.id as value.label group by value.group for value in myOptions">
+		<option value="">-- 请选择 --</option>
+	</select>
+</div>
+
+<div ng-controller="MainCtrl">
+	<select ng-model="selectedItemExact" ng-options="item.name for item in sourceList">
+		<option value="">-- 请选择 --</option>
+	</select>
+
+	<select ng-model="selectedItemSimilar" ng-options="item.name for item in sourceList">
+		<option value="">-- 请选择 --</option>
+	</select>
+<!-- valud有效的 pristine第一次没有输入 dirty输入过 -->
+	<form name="userInfoForm">
+		<div ng-class="getCssClasses(userInfoForm.email)" class="control-group">
+			<label>E-mail</label>
+			<input type="email" ng-model="email" name="email" required>
+			<span ng-show="showError(userInfoForm.email,'email')">
+				you must enter a valid email
+			</span>
+			<span ng-show="showError(userInfoForm.email,'required')">
+				this field is required
+			</span>
+		</div>
+		<button ng-disabled="!cansave()">Save</button>
+	</form>
+</div>
+
+<form ng-init="myText='hello world'" novalidate></form>
+
+<form name="form1" novalidate>
+	<legend>User form</legend>
+	<label for="">Name</label>
+	<input type="text" ng-model="user.name" required>
+	<ng-include src="'password-form.html'"></ng-include>
+</form>
+
+<div ng-controller="RepeatWebsite">
+	<div ng-repeat="item in user.websites">
+		<input type="url" ng-model="item.url">
+		<button ng-click="remove($index)">X</button>
+	</div>
+	<button ng-click="add()">Add website</button>
+</div>
+
+<div ng-controller="RepeatWebsiteForm">
+	<form name="userForm">
+		<div ng-show="userForm.$invalid">this form is invalid</div>
+		<div ng-repeat="item in user.websites" ng-form="websiteForm">
+			<input type="url" ng-model="item.url" name="website" required>
+			<button ng-click="remove($index)">X</button>
+			<span ng-show="showError(websiteForm.website,'url')">this input is invalid</span>
+			<span ng-show="showError(websiteForm.website,'required')">this input is required</span>
+		</div>
+		<button ng-click="add()">Add website</button>
+	</form>
+
+	<form name="userInfoForm">
+		...
+		<button ng-click="revert()" ng-disabled="!canRevert()">Revert Changes</button>
+	</form>
+</div>
+<script>
+// ng-options语法
+// [value as] label [group by grouping]  for item in arrayExpression
+// 										 for (key,value) in objectExpression
+var data={
+    "myOptions": [
+        {
+            "id": 106,
+            "group": "Group 1",
+            "label": "Item 1"
+        },
+        {
+            "id": 107,
+            "group": "Group 1",
+            "label": "Item 2"
+        },
+        {
+            "id": 110,
+            "group": "Group 2",
+            "label": "Item 3"
+        }]
+}
+var app = angular.module('myApp', []);
+app.controller("myCtrl",function($scope){
+	$scope.name="hhhh";
+	$scope.change=function(){
+		// alert($scope.name)
+	}
+})
+
+app.controller('LearnCtrl', function($scope) {
+	$scope.check = 'YES';
+	$scope.users = [{
+		username: "a",
+		email: "123@qq.com",
+		sex:"f"
+	}, {
+		username: "b",
+		email: "23@qq.com",
+		sex:"m"
+	}]
+
+	$scope.countriesByCode={
+		"AF":"AFGHANISTAN",
+		"AX":"ALAND ISLANDS"
+	}
+	$scope.countriesByName={
+		"AFGHANISTAN":"AF",
+		"ALAND ISLANDS":"AX"
+	}
+
+	$scope.engineer = {
+		name: "Dani",
+		currentActivity: "Fixing bugs"
+	};
+
+	$scope.activities =
+		[
+			"Writing code",
+			"Testing code",
+			"Fixing bugs",
+			"Dancing"
+		];
+});
+
+app.controller('selected',function($scope){
+	$scope.myOptions = data.myOptions;
+	$scope.myOption=$scope.myOptions[0].id;
+	$scope.selectAction=function(){
+		// 若用户未选择option，则myoption=null不是undefined
+		console.log($scope.myOption)
+	}
+})
+
+app.controller('MainCtrl',function($scope){
+	$scope.sourceList=[
+		{'id':'10005','name':"a"},
+		{'id':'10006','name':"b"},
+		{'id':'10007','name':"c"}
+	];
+	$scope.selectedItemExact=$scope.sourceList[0];
+	$scope.selectedItemSimilar={'id':'10005','name':"a"};
+	$scope.getCssClasses=function(ngModelController){
+		return {
+	// formName.inputFieldName.property[$valid,$invalid,$pristine,$dirty]
+			error:ngModelController.$invaild&&ngModelController.$dirty,
+			success:ngModelController.$vaild&&ngModelController.$dirty
+		}
+	}
+	$scope.showError=function(ngModelController,error){
+		return ngModelController.$error[error]
+	}
+	$scope.cansave=function(){
+		return $scope.userInfoForm.$vaild&&$scope.userInfoForm.$dirty
+	}
+})
+
+app.controller('RepeatWebsite', function($scope) {
+	$scope.user={
+		websites:[{"url":"http://www.baidu.com"},{"url":"http://www.baidu.com"}]
+	};
+	$scope.remove=function(index){
+		$scope.user.websites.splice(index,1)
+	}
+	$scope.add=function(){
+		$scope.user.websites.push({"url":""})
+	}
+})
+
+app.controller('RepeatWebsiteForm', function($scope) {
+	$scope.user={
+		websites:[{"url":"http://www.a.com"},{"url":"http://www.b.com"}]
+	};
+	$scope.showError=function(ngModelController,error){
+		console.log(ngModelController.$error)
+		return ngModelController.$error[error];
+	}
+	$scope.remove=function(index){
+		$scope.user.websites.splice(index,1)
+	}
+	$scope.add=function(){
+		$scope.user.websites.push({"url":""})
+	}
+})
+</script>
+</body>
+</html>

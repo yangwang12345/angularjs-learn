@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="./lib/angular.min.js"></script>
+</head>
+<body ng-app="myApp">
+<div ng-controller="MyController"> 
+</div>
+ 
+<script>
+var myAppModule = angular.module("myApp",[]);
+myAppModule.controller("MyController",["$scope","$q",function($scope, $q ){
+	var Person = function(name){
+		this.eat=function(food){
+			console.log(name+" is eating delicious"+food)
+		};
+		this.beHungry=function(reason){
+			console.log(name+" is hungry because:"+reason)
+		}
+	}
+// eg1
+		// var pizzaOrderFulfillment=$q.defer();
+		// var pizzDelivered=pizzaOrderFulfillment.promise;
+		// pawel=new Person("pawel");
+		// pizzDelivered.then(pawel.eat,pawel.beHungry);
+
+		// pizzaOrderFulfillment.resolve("Margherita");
+// eg1
+	var Restaurant=function(){
+		var currentOrder;
+
+		this.takeOrder=function(orderedItems){
+			currentOrder={
+				deferred:$q.defer(),
+				items:orderedItems
+			}
+			return currentOrder.deferred.promise;
+		}
+
+		this.deliverOrder=function(){
+			currentOrder.deferred.resolve(currentOrder.items);
+			// $rootScope.$digest();
+		}
+
+		this.problemWithOrder=function(reason){
+			currentOrder.deferred.reject(reason);
+			// $rootScope.$digest();
+		}
+	}
+	pizzaPit=new Restaurant();
+	saladBar=new Restaurant();
+
+	var slice=function(pizza){
+		return " sliced"+pizza
+	}
+
+	var retry=function(reason){
+		return pizzaPit.takeOrder(' Margherita').then(slice)
+	}
+
+	var explain=function(reason){
+		return $q.reject("ordered pizza not available")
+	}
+// eg2
+	pawel=new Person("pawel");
+	pete=new Person("pete");
+	// var pizzaDelivered=pizzaPit.takeOrder('Margherita')
+	// pizzaDelivered.then(pawel.eat,pawel.beHungry);
+	// pizzaDelivered.then(pete.eat,pete.beHungry);
+	// pizzaPit.takeOrder(' Margherita').then(slice).then(pawel.eat)
+	// pizzaPit.deliverOrder();
+	// 
+	// var pizzaDelivered=pizzaPit.takeOrder('Capricciosa')
+	// pizzaDelivered.then(pawel.eat,pawel.beHungry);
+	// pizzaPit.problemWithOrder('no Capricciosa,only Margherita left')
+	// pizzaPit.takeOrder(' Capricciosa').then(slice).then(pawel.eat,pawel.beHungry);
+	// pizzaPit.problemWithOrder('no Capricciosa,only Margherita left')
+// eg2
+// eg3
+	// pizzaPit.takeOrder(' Capricciosa').then(slice,explain).then(pawel.eat,pawel.beHungry);
+	// pizzaPit.problemWithOrder('no Capricciosa,only Margherita left');
+	// pizzaPit.deliverOrder();
+// eg3
+// 
+	// var orderDeilvered=$q.all([
+	// 	pizzaPit.takeOrder('Pappersoni'),
+	// 	saladBar.takeOrder('Fresh salad')
+	// ])
+// eg4
+	// orderDeilvered.then(pawel.eat,pawel.beHungry);
+	// pizzaPit.deliverOrder();
+	// saladBar.deliverOrder();
+// eg4
+// eg5
+	// orderDeilvered.then(pawel.eat,pawel.beHungry);
+	// pizzaPit.deliverOrder();
+	// saladBar.problemWithOrder('no Fresh salad');
+// eg5
+// 
+	var orderDeilvered=$q.all([
+		pizzaPit.takeOrder('Pappersoni'),
+		$q.when('home made salad')
+	])
+	// orderDeilvered.then(pawel.eat,pawel.beHungry);
+	// pizzaPit.deliverOrder();
+}]);
+</script>
+</body>
+</html>

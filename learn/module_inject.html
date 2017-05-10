@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="./lib/bootstrap.css">
+	<script src="./lib/angular.min.js"></script>
+	<style>
+	.text-warn{
+		color:orange;
+	}
+	</style>
+</head>
+<body ng-app="myApp">
+	<div ng-controller="myCtrl">
+		
+	</div>
+<script>
+angular.module('myApp', ['engines','cars'])
+	.controller("myCtrl",function($scope,car){
+		car.start();
+	})
+	
+angular.module('engines',[])
+	.factory('dieseEngine',function(){
+		return {
+			type:"diesel"
+		}
+	})
+angular.module('cars',[])
+	.factory('car',function($log,dieseEngine){
+		return {
+			start:function(){
+				$log.info('Starting'+dieseEngine.type)
+			}
+		}
+	})
+	.factory('dieseEngine',function(){
+		return {
+			type:"custom diesel"
+		}
+	})
+</script>
+</body>
+</html>

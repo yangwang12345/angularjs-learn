@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="./lib/bootstrap.css">
+	<script type="text/javascript" src="./lib/angular.min.js"></script>
+	<style>
+	ul,li{
+		list-style: none;
+		display: inline-block;
+	}
+	.icon-chevron-up{
+		background: url(./img/sort_desc.png) no-repeat center right;
+	}
+	.icon-chevron-down{
+		background: url(./img/sort_desc.png) no-repeat center right;
+		-moz-transform:rotate(180deg); 
+		-webkit-transform:rotate(180deg);
+		transform:rotate(180deg);
+		filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+	}
+	th.icon-chevron-up,th.icon-chevron-down{
+		overflow: hidden;
+	}
+	th i {
+		float: right;
+		width: 19px;
+		height: 19px;
+	}
+	</style>
+</head>
+<body ng-app="myApp">
+<div class="container" ng-controller="myCtrl">
+	<div class="well">
+		<label for="">
+			Search for: <input type="text" ng-model="test">
+		</label>
+	</div>
+	<table class="table table-bordered">
+		<thead>
+			<th ng-click="sort('name')">Name
+			<i ng-class="{'icon-chevron-up':isSortUp('name'),'icon-chevron-down':isSortDown('name')}"></i>
+			</th>
+			<th ng-click="sort('desc')">Desc
+			<i ng-class="{'icon-chevron-up':isSortUp('desc'),'icon-chevron-down':isSortDown('desc')}"></i></th>
+			<th ng-click="sort('priority')">Priority
+			<i ng-class="{'icon-chevron-up':isSortUp('priority'),'icon-chevron-down':isSortDown('priority')}"></i></th>
+			<th ng-click="sort('estimation')">Estimation
+			<i ng-class="{'icon-chevron-up':isSortUp('estimation'),'icon-chevron-down':isSortDown('estimation')}"></i></th>
+			<th ng-click="sort('done')">Done?
+			<i ng-class="{'icon-chevron-up':isSortUp('done'),'icon-chevron-down':isSortDown('done')}"></i></th>
+		</thead>
+		<tbody>
+			<tr ng-repeat="backlogItem in filteredBacklog=(backlog | filter:test | orderBy:sortField:reverse)">
+			<!-- <tr ng-repeat="backlogItem in backlog | filter:{'name':test,'done':true}"> -->
+			<!-- <tr ng-repeat="backlogItem in backlog | filter:{$:test,'done':false}"> -->
+			<!-- <tr ng-repeat="backlogItem in backlog | filter:doneAndBigEiffect"> -->
+				<td>{{backlogItem.name}}</td>
+				<td>{{backlogItem.desc}}</td>
+				<td>{{backlogItem.priority}}</td>
+				<td>{{backlogItem.estimation}}</td>
+				<td>{{backlogItem.done}}</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="5">total:{{filteredBacklog.length}}</td>
+			</tr>
+		</tfoot>
+	</table>
+<!-- 	<div class="text-center">
+		<ul class="pagination">
+			<li ng-repeat="page in pages"><a href="">{{page}}</a></li>
+		</ul>
+	</div> -->
+</div>
+<input type="file"/>
+
+<div ng-controller="myAppCtrl">
+	name:{{ name }}<br>
+	reverse name:{{ name | reverse }}<br>
+	reverse&uppercase name:{{ name | reverse:true }}
+</div>
+<script>
+// currentcy  data  number lowercase uppercase json
+// limitTo   Filter orderBy
+var app = angular.module('myApp', []);
+var pages=[1,2,3,4,5,6]
+app.controller("myCtrl",function($scope){
+	$scope.backlog =
+	[
+		{
+			name: "Review draff",
+			desc: "Re-read and review the 1st draff",
+			priority:4,
+			estimation:25,
+			done:true
+		},{
+			name: "Incorporate reviewers remarks",
+			desc: "Go over and reviewers remarks",
+			priority:6,
+			estimation:3,
+			done:false
+		},{
+			name: "Prepare outline",
+			desc: "Think of code samples",
+			priority:6,
+			estimation:3,
+			done:false
+		},{
+			name: "Review draff",
+			desc: "Re-read and review the 1st draff",
+			priority:6,
+			estimation:5,
+			done:true
+		},{
+			name: "Incorporate reviewers remarks",
+			desc: "Go over and reviewers remarks",
+			priority:6,
+			estimation:23,
+			done:false
+		},{
+			name: "Prepare outline",
+			desc: "Think of code samples",
+			priority:6,
+			estimation:3,
+			done:false
+		},{
+			name: "Incorporate reviewers remarks",
+			desc: "Go over and reviewers remarks",
+			priority:6,
+			estimation:23,
+			done:false
+		},{
+			name: "Incorporate reviewers remarks",
+			desc: "Go over and reviewers remarks",
+			priority:6,
+			estimation:3,
+			done:false
+		},{
+			name: "Prepare outline",
+			desc: "Think of code samples",
+			priority:6,
+			estimation:3,
+			done:false
+		},{
+			name: "Review draff",
+			desc: "Re-read and review the 1st draff",
+			priority:6,
+			estimation:5,
+			done:true
+		},{
+			name: "Incorporate reviewers remarks",
+			desc: "Go over and reviewers remarks",
+			priority:6,
+			estimation:23,
+			done:false
+		},{
+			name: "Prepare outline",
+			desc: "Think of code samples",
+			priority:6,
+			estimation:3,
+			done:false
+		},{
+			name: "Incorporate reviewers remarks",
+			desc: "Go over and reviewers remarks",
+			priority:6,
+			estimation:23,
+			done:false
+		},{
+			name: "Incorporate reviewers remarks",
+			desc: "Go over and reviewers remarks",
+			priority:6,
+			estimation:3,
+			done:false
+		},{
+			name: "Prepare outline",
+			desc: "Think of code samples",
+			priority:6,
+			estimation:3,
+			done:false
+		},{
+			name: "Review draff",
+			desc: "Re-read and review the 1st draff",
+			priority:6,
+			estimation:5,
+			done:true
+		},{
+			name: "Incorporate reviewers remarks",
+			desc: "Go over and reviewers remarks",
+			priority:6,
+			estimation:23,
+			done:false
+		},{
+			name: "Prepare outline",
+			desc: "Think of code samples",
+			priority:6,
+			estimation:3,
+			done:false
+		},{
+			name: "Incorporate reviewers remarks",
+			desc: "Go over and reviewers remarks",
+			priority:6,
+			estimation:23,
+			done:false
+		}
+	]
+
+	$scope.doneAndBigEiffect=function(backlogItem){
+		return backlogItem.done && backlogItem.estimation > 20
+	}
+
+	$scope.sortField=undefined;
+	$scope.reverse=false;
+
+	$scope.sort=function(fieldName){
+		if($scope.sortField === fieldName){
+			$scope.reverse = !$scope.reverse
+		} else {
+			$scope.sortField=fieldName;
+			$scope.reverse=false;
+		}
+	}
+
+	$scope.isSortUp=function(fieldName){
+		return $scope.sortField===fieldName && !$scope.reverse
+	}
+	$scope.isSortDown=function(fieldName){
+		return $scope.sortField===fieldName && $scope.reverse
+	}
+})
+
+// 创建过滤器
+app.filter("reverse", function() {
+	return function(input, uppercase) {
+		var out = "";
+		for (var i = 0; i < input.length; i++) {
+			// out在后面所以是反转 ; charAt(index)返回指定索引位置的char值
+			out = input.charAt(i) + out;
+		}
+		if (uppercase) {
+			out = out.toUpperCase();
+		}
+		return out;
+	}
+});
+
+app.controller("myAppCtrl",function($scope){
+	$scope.name="hello"
+})
+</script>
+</body>
+</html>

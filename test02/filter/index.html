@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+    <meta charset="UTF-8">
+<script src="http://apps.bdimg.com/libs/angular.js/1.4.6/angular.min.js"></script>
+<body>
+<div ng-controller="Ctrl">
+  <input type="number" ng-model="amount"> <br>
+  default currency symbol ($): <span id="currency-default">{{amount | currency}}</span><br>
+  custom currency identifier (USD$): <span>{{amount | currency:"USD$"}}</span>
+<br/>
+  Limit {{numbers}} to: <input type="integer" ng-model="numLimit">
+  <p>Output numbers: {{ numbers | limitTo:numLimit }}</p>
+  Limit {{letters}} to: <input type="integer" ng-model="letterLimit">
+  <p>Output letters: {{ letters | limitTo:letterLimit }}</p>
+  <br/>
+
+  Enter number: <input ng-model='val'><br>
+  Default formatting: <span id='number-default'>{{val | number}}</span><br>
+  No fractions: <span>{{val | number:0}}</span><br>
+  Negative number: <span>{{-val | number:4}}</span>
+</div>
+<br/>
+<div ng-init="friends = [{name:'John', phone:'555-1276'},
+                         {name:'Mary', phone:'800-BIG-MARY'},
+                         {name:'Mike', phone:'555-4321'},
+                         {name:'Adam', phone:'555-5678'},
+                         {name:'Julie', phone:'555-8765'},
+                         {name:'Juliette', phone:'555-5678'}]"></div>
+
+Search: <input ng-model="searchText">
+<table id="searchTextResults">
+  <tr><th>Name</th><th>Phone</th></tr>
+  <tr ng-repeat="friend in friends | filter:searchText">
+    <td>{{friend.name}}</td>
+    <td>{{friend.phone}}</td>
+  </tr>
+</table>
+<hr>
+Any: <input ng-model="search.$"> <br>
+Name only <input ng-model="search.name"><br>
+Phone only <input ng-model="search.phone"><br>
+Equality <input type="checkbox" ng-model="strict"><br>
+<table id="searchObjResults">
+  <tr><th>Name</th><th>Phone</th></tr>
+  <tr ng-repeat="friendObj in friends | filter:search:strict">
+    <td>{{friendObj.name}}</td>
+    <td>{{friendObj.phone}}</td>
+  </tr>
+</table>
+<br/>
+<!-- | date -->
+<!-- 后面：参数 可写可不写 -->
+<span ng-non-bindable>{{1288323623006 | date:'medium'}}</span>:
+    <span>{{1288323623006 | date:'medium'}}</span><br>
+<span ng-non-bindable>{{1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'}}</span>:
+   <span>{{1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'}}</span><br>
+<span ng-non-bindable>{{1288323623006 | date:'MM/dd/yyyy @ h:mma'}}</span>:
+   <span>{{'1288323623006' | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+
+{{ '不忘初心' | format}}
+
+<br/>
+<div ng-controller="ctrl">
+  <pre>Sorting predicate = {{predicate}}; reverse = {{reverse}}</pre>
+  <hr/>
+  [ <a href="" ng-click="predicate=''">unsorted</a> ]
+  <table class="friend">
+    <tr>
+      <th><a href="" ng-click="predicate = 'name'; reverse=false">Name</a>
+          (<a href="" ng-click="predicate = '-name'; reverse=false">^</a>)</th>
+      <th><a href="" ng-click="predicate = 'phone'; reverse=!reverse">Phone Number</a></th>
+      <th><a href="" ng-click="predicate = 'age'; reverse=!reverse">Age</a></th>
+    </tr>
+    <tr ng-repeat="friend in friends | orderBy:predicate:reverse">
+      <td>{{friend.name}}</td>
+      <td>{{friend.phone}}</td>
+      <td>{{friend.age}}</td>
+    </tr>
+  </table>
+</div>
+<script>
+var app = angular.module('myApp', []);
+app.filter('format',function() {
+  return function(item){
+     return item + "hello";
+  }
+});
+app.controller('Ctrl',['$scope',function($scope){
+  $scope.amount=123.455;
+    $scope.numbers = [1,2,3,4,5,6,7,8,9];
+    $scope.letters = "abcdefghi";
+    $scope.numLimit = 3;
+    $scope.letterLimit = 3;
+  $scope.val=14574573.445655;
+}])
+
+
+app.controller('ctrl',['$scope',function($scope){
+  $scope.friends =
+      [{name:'John', phone:'555-1212', age:10},
+       {name:'Mary', phone:'555-9876', age:19},
+       {name:'Mike', phone:'555-4321', age:21},
+       {name:'Adam', phone:'555-5678', age:35},
+       {name:'Julie', phone:'555-8765', age:29}]
+  $scope.predicate = '+age';
+}])
+</script>
+
+</body>
+</html>

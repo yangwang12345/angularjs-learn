@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="./bootstrap.css">
+	<script type="text/javascript" src="./lib/angular.min.js"></script>
+	<script type="text/javascript" src="./lib/angular-sanitize.js"></script>
+	<style>
+	ul,li{
+		list-style: none;
+	}
+	ul.ul_1>li {
+		display: inline-block;
+	}
+	.light-white{
+		background-color: #fff;
+	}
+	.dark-gray{
+		background-color: #f9f9f9;
+	}
+	</style>
+</head>
+<body ng-app="myApp">
+<div ng-controller="siteCtrl"> 
+	[[name]]
+	<div type="text" ng-bind="name"/></div>
+	<p>{{msg}}</p>
+	<!-- <p ng-bind-html-unsafe="msg"></p> -->
+	<p ng-bind-html="msg"></p>
+	<div ng-show="true">Secret</div>
+	<div ng-hide="false">Secret</div>
+
+	<div ng-switch on="showSecret">
+		<div ng-switch-when="true">Secret</div>
+		<div ng-switch-default>Won't show you my secrets!</div>
+	</div>
+
+	<div ng-if="showSecret">Secret</div>
+
+	<div ng-include="tpl/user.admin && 'tpl/edit.admin.html' || 'tpl/edit.user.html'"></div>
+	<div ng-include="'tpl/edit.user.html'"></div>
+	<div class="container">
+		<table class="table table-bordered">
+			<tr ng-repeat="user in users">
+				<td>{{user.name}}</td>
+				<td>{{user.sex}}</td>
+			</tr>
+		</table>	
+	</div>
+	
+	<ul class="ul_1">
+		<li ng-repeat="breadcrumb in breadcrumbs">
+			<span class="divider">/</span>
+			<div ng-switch on="$last" style="display: inline-block;">
+				<span ng-switch-when="true">{{breadcrumb.name}}</span>
+				<span ng-switch-default>
+					<a href="{{breadcrumb.path}}">{{breadcrumb.name}}</a>
+				</span>
+			</div>
+		</li>
+	</ul>
+
+	<ul>
+		<li ng-repeat="(name, value) in person">
+			property {{$index}} with {{name}} has value {{value}}
+		</li>
+	</ul>
+</div>
+
+<div class="container">
+	<table class="table table-bordered" ng-controller="ListAndOneDetailCtrl">
+		<tbody ng-repeat="user in users" ng-click="selectUser(user)" ng-switch on="isSelected(user)">
+			<!-- <tr ng-class-even="'light-white'" ng-class-odd="'dark-gray'"> -->
+			<tr ng-class="{'light-white':!$index%2,'dark-gray':$index%2}">
+				<td>{{user.name}}</td>
+				<td>{{user.sex}}</td>
+			</tr>
+			<tr ng-switch-when="true">
+				<td colspan="2">{{user.desc}}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<!-- 有问题，ng-controller and ng-repeat cant't 绑定在同一个元素中 -->
+<!-- <div class="container">
+	<table class="table table-bordered" ng-controller="UserCtrl">
+		<tbody ng-repeat="user in users" ng-click="toggleClick()" ng-switch on="isSelected()">
+			<tr>
+				<td>{{user.name}}</td>
+				<td>{{user.sex}}</td>
+			</tr>
+			<tr ng-switch-when="true">
+				<td colspan="2">{{user.desc}}</td>
+			</tr>
+		</tbody>
+	</table>
+</div> -->
+<script>
+var users = [{
+		name: "bb",
+		sex: "man",
+		desc:"bb's detail go here"
+	}, {
+		name: "aa",
+		sex: "woman",
+		desc:"aa's detail go here"
+	}, {
+		name: "cc",
+		sex: "man",
+		desc:"cc's detail go here"
+	}];
+// ng-show/ng-hide,ng-switch-*,ng-if,ng-include
+var app = angular.module('myApp', ['ngSanitize']);
+// app.config(function($interpolateProvider){
+// 	$interpolateProvider.startSymbol('[[');
+// 	$interpolateProvider.endSymbol(']]');
+// })
+// 
+
+app.controller('siteCtrl',function($scope){
+	$scope.name="hello angular";
+	$scope.msg='Hello,<b>World</b>';
+	$scope.user={
+		admin:true
+	}
+	$scope.users = [{
+		name: "bb",
+		sex: "man"
+	}, {
+		name: "aa",
+		sex: "woman"
+	}, {
+		name: "cc",
+		sex: "man"
+	}];
+	$scope.breadcrumbs = [{
+		name: "admin",
+		path: "www.baidu.com"
+	}, {
+		name: "proctects",
+		path: "www.baidu.com"
+	}, {
+		name: "new",
+		path: ""
+	}];
+	// 无序排列,不能控制顺序
+	$scope.person = {
+		sex: "man",
+		email:"123@qq.com",
+		name: "aaa"
+	}
+})
+
+app.controller('ListAndOneDetailCtrl',function($scope){
+	$scope.users=users;
+	$scope.selectUser=function(user){
+		$scope.selectedUser=user;
+	};
+
+	$scope.isSelected=function(user){
+		return $scope.selectedUser===user;
+	}
+})
+
+
+// app.controller('UserCtrl', function($scope) {
+// 	$scope.users = users;
+
+// 	$scope.toggleClick = function() {
+// 		$scope.selected = !$scope.selected;
+// 	};
+
+// 	$scope.isSelected = function() {
+// 		return $scope.selected
+// 	}
+// })
+</script>
+</body>
+</html>

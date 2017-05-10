@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="./lib/angular.min.js"></script>
+	<script type="text/javascript" src="./lib/angular-resource.js"></script>
+</head>
+<body>
+<div ng-app="myApp" ng-controller="siteCtrl"> 
+</div>
+ 
+<script>
+angular.module('myApp', ['ngResource'])
+	.factory('Users',function($resource){
+		return 
+			$resource('https://api.mongolab.com/api/1/databases/ascrum/collections/users/:id',{
+				apiKey:'4fb51e55e4b02e56a67b0b66',
+				id:'@_id.$oid'
+			})
+	})
+	.controller('siteCtrl',function($scope,Users){
+		Users.delete({},user)
+		// =>
+		user.$delete();
+
+		var user=new Users({
+			name:'a'
+		})
+		user.$save()
+		// =>
+		Users.save(user)
+	})
+</script>
+</body>
+</html>

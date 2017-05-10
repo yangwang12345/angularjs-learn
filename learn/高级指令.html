@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="./lib/bootstrap.css">
+    <!-- <script type="text/javascript" src="./lib/jquery.min.js"></script> -->
+	<script type="text/javascript" src="./lib/angular.min.js"></script>
+	<style>
+	ul,li{
+		list-style: none;
+		display: inline-block;
+	}
+	</style>
+</head>
+<body ng-init="model={show:true,count:0}">
+
+<div ng-controller="AlertCtrl" ng-init="type='hello'">
+    <div>{{type}}</div>
+    <alert type="alert.type" close="closeAlert($index)" ng-repeat="alert in alerts">
+        {{alert.msg}}
+    </alert> 
+</div>
+<runoob-directive aaa='aaa'>
+            <foo-directive foo='foo'></foo-directive>
+</runoob-directive>
+
+<div ng-controller="GreeterController">
+  <input ng-model="name"> <br>
+  <textarea ng-model="html"></textarea> <br>
+  <div compile="html"></div>
+</div>
+
+<button ng-click="model.show=!model.show">
+    Toogle Div
+</button>
+<div if="model.show" ng-init="model.count=model.count+1">
+    Shown {{model.count}} times
+</div>
+
+<accordion>
+    <accrodion-group heading="Heading 1">
+        Group 1 <strong>Body</strong>
+    </accrodion-group>
+    <accrodion-group heading="Heading 2">
+        Group 2 <strong>Body</strong>
+    </accrodion-group>
+</accordion>
+
+<field type="email" ng-model="user.email" required>
+    <label>Email</label>
+    <validator key="required">$fieldLabel is required</validator>
+    <validator key="email">Plese enter a valid email</validator>
+</field>
+<script>
+var app = angular.module("myApp", []);
+app.controller('AlertCtrl',function($scope){
+    $scope.alerts = [{
+        type: "info",
+        msg: "info"
+    }, {
+        type: "success",
+        msg: "success"
+    }];
+    return {
+        data: $scope.alerts
+    }
+})
+app.directive('alert',function(){
+    return {
+        restrict:"E",
+        replace:true,
+        // 如果不定义replace，template会追加到alert里面而不是替换掉alert
+        transclude:true,
+        // transclude要么是true 指令元素的内容（子元素）会被嵌入，这里是alert.msg，要么是element 
+        // 整个元素被嵌入  包括尚未被编译的指令如ng-repeat等  ,ng-transclude会插入被嵌入的元素
+        template:'<div class="alert alert-{{type}}"><button class="close" ng-click="close(x)" type="button">&times;</button><div ng-transclude></div></div>',
+        controller:'AlertCtrl',
+        scope:{
+            type:"=",
+            close:'&'
+        },
+        link:function(scope,ele,attrs,controller){
+            // console.log(controller)
+        }
+    }
+})
+
+app.controller('hello',function($scope){
+    return {
+        hello1:function(a){
+            alert(a);
+        }
+    }
+});
+app.controller('hello2',function($scope){
+    return {
+        hello3:function(a){
+            alert(a);
+        }
+    }
+});
+app.directive("runoobDirective", ['$http',function($http) {
+    return {
+        controller:'hello',
+        link:function(scope, $element, attrs, controllers) {
+            console.log(controllers);
+        }
+
+    };
+}]);
+
+app.directive("fooDirective", ['$http',function($http) {
+    return {
+        controller:'hello2',
+        require:['fooDirective','^runoobDirective'],
+        // require注入另一个controller hello（require要注入多个controller第一位必须得是自身）
+        link:function(scope, $element, attrs, controllers) {
+            console.log(controllers);
+        },
+        template : "<h1>自定义指令2!</h1>"
+    };
+}]);
+
+
+app.directive('compile', function($compile) {
+    // directive factory creates a link function
+    return function(scope, element, attrs) {
+        scope.$watch(
+            function(scope) {
+                // watch the 'compile' expression for changes
+                return scope.$eval(attrs.compile);
+            },
+            function(value) {
+                element.html(value);
+                // 通过$compile服务可以编译html字符串或dom对象或jqLite对象，然后得到一个编译函数，再传入$scope 绑定作用域 最后添加到文档中
+                // $compile的第三个参数如果是个回调，返回编译后元素的副本
+                // scope=>scope.$parent.$new()
+                $compile(element.contents())(scope);
+            }
+        );
+    };
+});
+
+app.controller('GreeterController', ['$scope', function($scope) {
+    $scope.name = 'Angular';
+    $scope.html = 'Hello ';
+}]);
+
+// 嵌入函数
+// var elementsToTransclude=directiveElement.contents();
+// directiveElement.html('');
+// var transcludeFunction=$compile(elementsToTransclude)
+// 
+// myModule.directive('myDirective',function(){
+    // return {
+    //     transclude:true,
+    //     可以通过transcludeFn,$transclude(已绑定作用域)访问嵌入函数
+    //     compile:function(element,attrs,transcludeFn){...},
+    //     controller:function($scope,$transclude){...}
+    // }
+// })
+// if=>ng-if
+app.directive('if',function(){
+    return {
+        transclude:'element',
+        // 优先级高的指令优先被嵌入，ng-repeat:1000
+        priority:500,
+        compile:function(ele,attr,transclude){
+            return function postLink(scope,ele,attr){
+                var childElement,childScope;
+                scope.$watch(attr['if'],function(newValue){
+                    if(childElement){
+                        childElement.remove();
+                        childScope.$destroy();
+                        childElement=undefined;
+                        childScope=undefined;
+                    }
+                    if(newValue){
+                        childScope=scope.$new();
+                        childElement=transclude(childScope,function(clone){
+                            ele.after(clone)
+                        })
+                    }
+                })
+            }
+        }
+    }
+})
+
+app.controller('AccordionController',['$scope','$attrs',function($scope,$attrs){
+    this.groups=[];
+    this.closeOthers=function(openGroup){
+        angular.forEach(this.groups,function(group){
+            if(group!==openGroup){
+                group.isOpen=false;
+            }
+        });
+    };
+    this.addGroup=function(groupScope){
+        console.log(groupScope)
+        var that=this;
+        this.groups.push(groupScope);
+        groupScope.$on('$destroy',function(event){
+            // 删除由ng-repeat产生的垃圾
+            that.removeGroup(groupScope)
+        })
+    };
+    this.removeGroup=function(group){
+        var index=this.groups.indexOf(group);
+        if(index!=-1){
+            this.groups.splice(this.groups.indexOf(group),1)
+        }
+    }
+}]);
+app.directive('accordion',function(){
+    return {
+        restrict:'E',
+        controller:'AccordionController',
+        link:function(scope,element,attrs){
+            element.addClass('accordion')
+        }
+    }
+})
+app.directive('accrodionGroup',function(){
+    return {
+        require:'^accordion',
+        restrict:'E',
+        transclude:true,
+        replace:true,
+        templateUrl:'tpl/accrodion-group.html',
+        scope:{
+            heading:'@'
+        },
+        link:function(scope,element,attrs,accordionCtrl){
+            accordionCtrl.addGroup(scope);
+            scope.isOpen=false;
+            scope.$watch('isOpen',function(value){
+                if(value){
+                    accordionCtrl.closeOthers(scope)
+                }
+            })
+        }
+    }
+})
+
+app.directive('field',function($interpolate,$http){
+    return {
+        restrict:'E',
+        priority:100,
+        // true终止编译，比它优先级低的
+        terminal:true,
+        compile:function(element,attrs){
+            function getValidationValidationMessage(element){
+                var messageFns={};
+                var validators=element.find('validator');
+                angular.forEach('validators',function(validator){
+                    validator=angular.element(validator);
+                    messageFns[validator.attr('key')]=$interpolate(validator.text())
+                })
+            }
+            function getLabelContent(element){
+                var label=element.find('label');
+                return label[0]&&label.html()
+            }
+            function loadTemplate(template) {
+                return $http.get(template, {
+                    cache: $templateCathe
+                }).
+                then(function(res) {
+                    return angualr.element(res.data);
+                }, function(res) {
+                    throw newt Error('template not found :' + template)
+                })
+            }
+            var validateMgs=getValidationValidationMessage(element);
+            var labelContent=getLabelContent(element)
+            element.html('');
+
+            return function postLink(scope.element,attrs){
+                var template='tpl/input.html';
+                loadTemplate(template).then(function(templateElement){
+                    var childScope=scope.$new();
+                    childScope.$validationMessages=angular.copy(validationMsgs);
+                    childScope.$fieldId=attrs.ngModel.replace('.','_').toLowerCase()+'_'+childScope.$id;
+                    childScope.$fieldLabel=labelContent;
+                    childScope.$watch('$field.$dirty&&$field.$error',function(errorList){
+                        childScope.$fieldErrors=[];
+                        angular.forEach(errorList,function(invalid,key){
+                            if(invalid){
+                                childScope.$fieldErrors.push(key)
+                            }
+                        },true)
+                    })
+                })
+                var inputElement=findInputElement(templateElement);
+                angular.forEach(attrs.$attr,function(original,normailized){
+                    var value=element.attr(original);
+                    inputElement.attr(original,value)
+                })
+                inputElement.attr('name',childScope.$fieldId);
+                inputElement.attr('id',childScope.$fieldId);
+
+                var labelElement=templateElement.find('label');
+                labelElement.attrs('for',childScope.$fieldId)
+                labelElement.html(labelContent);
+
+                element.append(templateElement);
+                $compile(templateElement)(childScope);
+                childScope.$field=inputElement.controller('ngModel')
+            }
+        }
+    }
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!-- 231 -->
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="./lib/bootstrap.css">
+	<script type="text/javascript" src="./lib/angular.min.js"></script>
+	<script type="text/javascript" src="./lib/angular-route.js"></script>
+	<style>
+	ul,li{
+		list-style: none;
+		display: inline-block;
+	}
+	</style>
+</head>
+<body ng-controller="NavigationCtrl">
+	<div class="navbar">
+		<div class="navbar-inner">
+			<ul class="nav">
+				<li><a href="#/admin/users/list">List users</a></li>
+				<li><a href="#/admin/users/new">new user</a></li>
+			</ul>
+		</div>
+	</div>
+<!-- 	<div class="container-fluid" ng-include="selectedRoute.templateUrl"> -->
+	<!-- </div> -->
+	<ng-view></ng-view>
+	<!-- 不支持嵌套路由，只能有一个ng-view -->
+<script>
+// 在Angular中，依赖注入可谓无孔不入。通常在两种场景（函数）下会使用到依赖注入：
+
+// 工厂方法定义的组件（components）：如directive，factory，filter，provider，controller等。这些工厂函数需要注册到某个模块上。controller比较特殊，它虽然也是一种组件，但是特别之处是它与某个DOM元素关联，因此可以注入$scope service，而其他组件只能注入$rootScope service。
+// 模块提供的run/config方法。
+// 数组标注：最常用且推荐的方式
+var app = angular.module('myApp',["ngRoute"]);
+// app.config(function($anchorScrollProvider){
+// 	$anchorScrollProvider.disbleAutoScrolling();
+// })
+// app.config(function($locationProvider){
+// 	$locationProvider.html5Mode(true)
+// })
+// 没有什么用的小例子
+// app.controller("NavigationCtrl",function($scope,$location){
+// 	var routes={
+// 		'/admin/users/list':{templateUrl:'tpl/users/list.html'},
+// 		'/admin/users/new':{templateUrl:'tpl/users/new.html'},
+// 		'/admin/users/edit':{templateUrl:'<tpl></tpl>/users/edit.html'}
+// 	}
+// 	var defaultRoute=routes['/admin/users/list'];
+// 	$scope.$watch(function(){
+// 		return $location.path();
+// 	},function(newPath){
+// 		$scope.selectedRoute=routes[newPath]||defaultRoute
+// 	})
+// })
+    angular.module("myApp",["ngRoute"])
+    .controller("NavigationCtrl",function($scope,$location){
+
+        // $scope.$on("$viewContentLoaded",function(){
+        //     console.log("ng-view content loaded!");
+        // });
+
+        // $scope.$on("$routeChangeStart",function(event,next,current){
+        //     //event.preventDefault(); //cancel url change
+        //     console.log("route change start!");
+        // });
+    })
+    // .controller("EditUserCtrl",function($scope,$location){
+    //  // .controller("EditUserCtrl",function($scope,$routeParams,Users){
+    // 	// $scope.user=Users.get({id:$routeParams.userid})
+    // 	// $scope.showUrl=function(){
+    // 	// 	$location.path('/admin/users/list')
+    // 	// }
+    // })
+    .config(function($routeProvider, $locationProvider) {
+    	$routeProvider
+    		.when('/admin/users/list', {
+    			// templateUrl: 'tpl/users/list.html'
+                template:"<div>list</div>"      
+    		})
+    		.when('/admin/users/new', {
+    			// templateUrl: 'tpl/users/new.html'
+                template:"<div>new</div>"  
+    		})
+    		.when('/admin/users/:id', {
+    			templateUrl: 'tpl/users/edit.html',
+    			// controller:'EditUserCtrl',
+    			// resolve防止输入地址页面抖动  可以返回JavaScript，对象，promise，当所有promise处理成功才会更新路由
+    			// resolve:{
+    			// 	user:function($route,Users){
+    			// 		return Users.getById($route.current,params.userid)
+    			// 	}
+    			// }
+    		})
+    		.otherwise({
+    			redirectTo: '/admin/users/list'
+    		});
+    });
+</script>
+</body>
+</html>

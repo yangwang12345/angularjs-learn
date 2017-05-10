@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script src="framework/angular/angular.min.js"></script>
+    <!-- <script src="directive.js"></script> -->
+    <!-- <script src="transclude.js"></script> -->
+    <script src="link.js"></script>
+  </head>
+
+  <body ng-app="helloworld">
+      <hello>
+        <div>这是指令内部</div>
+      </hello>  
+
+      <div ng-controller="myCtrl">
+          <load howToLoad="load1()">滑动加载1</load>
+      </div>
+      <div ng-controller="myCtr2">
+          <load howToLoad="load2()">滑动加载2</load>
+      </div>
+  </body>
+</html>

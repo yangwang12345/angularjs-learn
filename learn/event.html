@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="./lib/bootstrap.css">
+	<script type="text/javascript" src="./lib/angular.min.js"></script>
+	<style>
+	ul,li{
+		list-style: none;
+	}
+	</style>
+</head>
+<body ng-app="myApp">
+<div class="container" ng-controller="EvenCtrl">
+	<div>
+		<input type="text" ng-model="name" />
+		<button ng-click="hello(name)">click here</button>
+	</div>
+
+	<ul>
+		<li ng-repeat="item in items" ng-click="logPositon(item,$event)">{{item}}</li>
+	</ul>
+
+	<ul>
+		<li ng-repeat-start="user in users">{{user.name}}</li>
+		<li ng-repeat-end>{{user.desc}}</li>
+	</ul>
+	<ng-include src="'./tpl/input'+ myinput.type +'.html'">
+	</ng-include>
+</div>
+<script>
+// ngClick , ngDbclick
+// ngMousedown, ngMouseup, ngMouseenter, ngMouseleave, ngMousemove, ngMouseover
+// ngKeydown, ngKeyup,ngKeypress
+// ngChange
+var app = angular.module('myApp', []);
+app.controller("EvenCtrl",function($scope){
+	$scope.users = [{
+		name: "bb",
+		sex: "man",
+		desc:"bb's detail go here"
+	}, {
+		name: "aa",
+		sex: "woman",
+		desc:"aa's detail go here"
+	}, {
+		name: "cc",
+		sex: "man",
+		desc:"cc's detail go here"
+	}];
+
+	$scope.myinput={"type":"Text"};
+
+	$scope.hello=function(n){
+		alert("hello: "+n);
+	}
+
+	$scope.items=["aaa","bbb","ccc"];
+	$scope.logPositon=function(item,$event){
+		console.log(item +"was clicked at:"+$event.clientX+" "+$event.clientY)
+	}
+})
+</script>
+</script>
+</body>
+</html>

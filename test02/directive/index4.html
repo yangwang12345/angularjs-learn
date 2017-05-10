@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+    <meta charset="UTF-8">
+<script src="http://apps.bdimg.com/libs/angular.js/1.4.6/angular.min.js"></script>
+<body>
+<div ng-controller="SomeCtrl">
+  <according>
+    <expander class="expander" ng-repeat="expander in expanders" expander-title="expander.title">{{expander.text}}</expander>
+  </according>
+</div>
+<script>
+var app = angular.module('myApp', []);
+app.directive('according',function(){
+  return {
+    restrict:"EA",
+    replace:true,
+    transclude:true,
+    template:'<div ng-transclude></div>',
+    controller:function(){
+      var expanders=[];
+      this.gotOpened=function(select){
+        angular.forEach(expanders,function(expander){
+          if(select!=expander){
+            expander.showMe=false;
+          }
+        })
+      };
+      this.add=function(expander){
+        expanders.push(expander)
+      };
+    }
+  }
+})
+app.directive('expander',function(){
+  return {
+    restrict:"EA",
+    replace:true,
+    transclude:true,
+    require:"^?according",
+    scope:{
+      title:"=expanderTitle"
+    },
+    template:'<div><div class="title" ng-click="toggle()">{{title}}</div><div class="body" ng-show="showMe" ng-transclude></div></div>',
+    link:function(scope,element,attrs,accordingController){
+      scope.showMe=false;
+      accordingController.add(scope);
+      scope.toggle=function toggle(){
+        scope.showMe=!scope.showMe;
+        accordingController.gotOpened(scope);
+      }
+    }
+  }
+})
+
+app.controller("SomeCtrl",['$scope',function($scope){
+  $scope.expanders=[{
+    title:"a",
+    text:"我是a"
+  },{
+    title:"b",
+    text:"我是b"
+  },{
+    title:"c",
+    text:"我是c"
+  }]
+}])
+</script>
+
+</body>
+</html>

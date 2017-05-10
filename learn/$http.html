@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="./lib/angular.min.js"></script>
+</head>
+<body>
+<div ng-app="myApp" ng-controller="siteCtrl"> 
+ 
+<ul>
+  <li ng-repeat="x in names">
+    {{ x.Name + ', ' + x.Country }}
+  </li>
+</ul>
+<div>{{greeting}}</div>
+</div>
+ 
+<script>
+var userToAdd={
+	name:'abcd',
+	email:'1455809653@qq.com'
+}
+var app = angular.module('myApp', []);
+app.controller('siteCtrl', function($scope, $http) {
+	// $http.post('https://api.mongolab.com/api/1/databases/ascrum/collections/users',
+	// 	userToAdd,
+	// 	{
+	// 		params:{apiKey:'4fb51e55e4b02e56a67b0b66'}
+	// 	}
+	// )
+	// $http.jsonp('https://angularjs.org/greet.php?callback=JSON_CALLBACK',
+	// 	{
+	// 		params:{name:'world'}
+	// 	}
+	// ).success(function(data){
+	// 	$scope.greeting=data
+	// })
+	// $http.delete('https://api.mongolab.com/api/1/databases/ascrum/collections/users'+"589ab376c2ef165d6197acdb",
+	// 	{
+	// 		params:{apiKey:'4fb51e55e4b02e56a67b0b66'}
+	// 	}
+	// )
+  var responsePromise = $http.get('./data/data.json');
+  responsePromise.then(function (response) {
+    $scope.data = response.data;
+    console.log($scope.data)
+  }, function (response) {
+    throw new Error('Something went wrong...')
+  })
+});
+
+
+// function get(url) {
+//   // Return a new promise.
+//   return new Promise(function(resolve, reject) {
+//     // Do the usual XHR stuff
+//     var req = new XMLHttpRequest();
+//     req.open('GET', url);
+
+//     req.onload = function() {
+//       // This is called even on 404 etc
+//       // so check the status
+//       if (req.status == 200) {
+//         // Resolve the promise with the response text
+//         resolve(req.response);
+//       }
+//       else {
+//         // Otherwise reject with the status text
+//         // which will hopefully be a meaningful error
+//         reject(Error(req.statusText));
+//       }
+//     };
+
+//     // Handle network errors
+//     req.onerror = function() {
+//       reject(Error("Network Error"));
+//     };
+
+//     // Make the request
+//     req.send();
+//   });
+// }
+
+// Use it!
+// get('./data/data.json').then(function(response) {
+//   console.log("Success!", response);
+// }, function(error) {
+//   console.error("Failed!", error);
+// });
+
+</script>
+</body>
+</html>

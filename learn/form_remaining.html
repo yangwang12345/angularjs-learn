@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="./lib/bootstrap.css">
+	<script src="./lib/angular.min.js"></script>
+	<style>
+	.text-warn{
+		color:orange;
+	}
+	</style>
+</head>
+<body ng-app="myApp">
+	<div class="container" ng-controller="TextareaWithLimitCtrl">
+		<div class="row">
+			<span ng-class="{'text-warn':showWarn()}">remaining:{{remaining()}}</span>
+		</div>
+		<div class="row">
+			<textarea id="" cols="30" rows="3" ng-model="message">{{message}}</textarea>
+		</div>
+		<br/>
+		<div class="row">
+			<button ng-click="send()" ng-disabled="hasValidLength()">Send</button>
+			<button ng-click="clear()">Clear</button>
+		</div>
+	</div>
+
+<script>
+var app = angular.module('myApp', []);
+app.controller('TextareaWithLimitCtrl', function($scope) {
+	var max=100;
+	$scope.message="";
+	$scope.remaining=function(){
+		return max-$scope.message.length
+	}
+	$scope.clear=function(){
+		$scope.message="";
+	}
+	$scope.hasValidLength=function(){
+		if($scope.message.length<100){
+			return false
+		} else {
+			return true
+		}
+	}
+	$scope.showWarn=function(){
+		return $scope.remaining() < 10
+	}
+});
+
+</script>
+</body>
+</html>
